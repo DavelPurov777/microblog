@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"github.com/DavelPurov777/microblog"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"github.com/DavelPurov777/microblog/internal/models"	
 )
 
 func (h *Handler) register(c *gin.Context) {

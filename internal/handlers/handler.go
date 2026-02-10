@@ -2,7 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/DavelPurov777/todo-app-golang/pkg/service"
+	"github.com/DavelPurov777/microblog/internal/service"
 )
 
 type Handler struct {
@@ -14,8 +14,11 @@ func NewHandler(services *service.Service) *Handler {
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {
-	router := gin.default()
-	register := router.POST("/register", h.register)
+	router := gin.New()
+	register := router.Group("/register")
+	{
+		register.POST("/", h.register)
+	}
 
 	return router
 }

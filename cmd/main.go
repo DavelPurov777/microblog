@@ -1,12 +1,14 @@
 package main
 
 import (
+	_ "github.com/lib/pq"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/DavelPurov777/microblog/internal/service"
 	"github.com/DavelPurov777/microblog/internal/repository"
-	"github.com/DavelPurov777/microblog/internal/handler"
+	"github.com/DavelPurov777/microblog/internal/handlers"
+	"github.com/DavelPurov777/microblog/internal/server"
 	"os"
 )
 
@@ -38,7 +40,7 @@ func main() {
 	services := service.NewService(repos);
 	handlers := handler.NewHandler(services);
 
-	srv := new(todo.Server)
+	srv := new(server.Server)
 	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
 		logrus.Fatalf("error occured while running HTTP server %s", err.Error())
 	}
