@@ -16,6 +16,7 @@ type Authorization interface {
 
 type PostsList interface {
 	Create(list models.Post)  (int, error)
+	GetAll() ([]models.Post, error)
 }
 
 type Repository struct {

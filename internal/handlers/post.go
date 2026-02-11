@@ -6,6 +6,10 @@ import (
 	"github.com/DavelPurov777/microblog/internal/models"	
 )
 
+type getAllPostsResponse struct {
+	Data []models.Post `json:"data"`
+}
+
 func (h *Handler)  createPost(c *gin.Context) {
 	var input models.Post
 	if err := c.BindJSON(&input); err != nil {
@@ -21,5 +25,17 @@ func (h *Handler)  createPost(c *gin.Context) {
 
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"id": id,
+	})
+}
+
+func (h *Handler) getAllPosts(c *gin.Context) {
+	posts, err := h.services.PostsList.GetAll()
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	
+	c.JSON(http.StatusOK, getAllPostsResponse{
+		Data: posts,
 	})
 }

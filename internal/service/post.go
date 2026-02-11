@@ -16,3 +16,7 @@ func NewPostListService(repo repository.PostsList) *PostListService {
 func (s *PostListService) Create(list models.Post)  (int, error) {
 	return s.repo.Create(list)
 }
+
+func (s *PostListService) GetAll() ([]models.Post, error) {
+	return s.repo.GetAll()
+}

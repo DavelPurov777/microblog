@@ -1,3 +1,2 @@
-DROP TABLE IF EXISTS users_lists;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS posts_lists;

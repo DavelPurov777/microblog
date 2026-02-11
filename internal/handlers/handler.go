@@ -23,7 +23,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	createPost := router.Group("/posts")
 	{
 		createPost.POST("/", h.createPost)
-		createPost.GET("/", h.getPosts)
+		createPost.GET("/", h.getAllPosts)
 	}
 
 	return router
