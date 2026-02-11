@@ -12,6 +12,7 @@ type Authorization interface {
 type PostsList interface {
 	Create(list models.Post)  (int, error)
 	GetAll() ([]models.Post, error)
+	LikePost(listId int) error
 }
 
 type Service struct {

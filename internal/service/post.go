@@ -20,3 +20,7 @@ func (s *PostListService) Create(list models.Post)  (int, error) {
 func (s *PostListService) GetAll() ([]models.Post, error) {
 	return s.repo.GetAll()
 }
+
+func (s *PostListService) LikePost(listId int) error {
+	return s.repo.LikePost(listId)
+}

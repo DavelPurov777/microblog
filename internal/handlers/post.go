@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 	"github.com/DavelPurov777/microblog/internal/models"	
 )
 
@@ -38,4 +39,19 @@ func (h *Handler) getAllPosts(c *gin.Context) {
 	c.JSON(http.StatusOK, getAllPostsResponse{
 		Data: posts,
 	})
+}
+
+func (h *Handler) likePost(c *gin.Context) {
+	listId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+		return
+	}
+
+	if err := h.services.PostsList.LikePost(listId); err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, statusResponse{"ok"})
 }

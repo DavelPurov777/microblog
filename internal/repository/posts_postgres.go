@@ -38,3 +38,10 @@ func (r *PostListPostgres) GetAll() ([]models.Post, error) {
 
 	return posts, err
 }
+
+func (r *PostListPostgres) LikePost(listId int) error {
+	query := fmt.Sprintf("UPDATE %s SET likes = likes + 1 WHERE id = $1", postsListsTable)
+
+	_, err := r.db.Exec(query, listId)
+	return err
+}

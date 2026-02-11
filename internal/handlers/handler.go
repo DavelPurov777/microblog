@@ -24,6 +24,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		createPost.POST("/", h.createPost)
 		createPost.GET("/", h.getAllPosts)
+		createPost.PUT("/:id/like", h.likePost)
 	}
 
 	return router
