@@ -15,9 +15,15 @@ func NewHandler(services *service.Service) *Handler {
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
+
 	register := router.Group("/register")
 	{
 		register.POST("/", h.register)
+	}
+	createPost := router.Group("/posts")
+	{
+		createPost.POST("/", h.createPost)
+		createPost.GET("/", h.getPosts)
 	}
 
 	return router

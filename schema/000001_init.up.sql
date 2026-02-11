@@ -3,4 +3,18 @@ CREATE TABLE users (
     name varchar(255) not null ,
     username varchar(255) not null unique,
     password_hash varchar(255) not null
-)
+);
+
+CREATE TABLE posts_lists (
+    id serial not null unique,
+    title varchar(255) not null,
+    description varchar(255),
+    likes int
+);
+
+CREATE TABLE users_lists
+(
+    id serial not null unique,
+    user_id int references users (id) on delete cascade not null,
+    post_id int references posts_lists (id) on delete cascade not null
+);

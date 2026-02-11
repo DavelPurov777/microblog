@@ -7,18 +7,25 @@ import (
 
 const (
 	usersTable = "users"
+	postsListsTable = "posts_lists"
 )
 
 type Authorization interface {
 	CreateUser(models.User) (int, error)
 }
 
+type PostsList interface {
+	Create(list models.Post)  (int, error)
+}
+
 type Repository struct {
 	Authorization
+	PostsList
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Authorization: NewAuthPostgres(db),
+		PostsList: NewPostListPostgres(db), 
 	}
 }
