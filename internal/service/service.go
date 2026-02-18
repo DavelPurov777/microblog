@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/DavelPurov777/microblog/internal/repository"
 	"github.com/DavelPurov777/microblog/internal/models"
+	"github.com/DavelPurov777/microblog/internal/queue"
 )
 
 type Authorization interface {
@@ -20,9 +21,9 @@ type Service struct {
 	PostsList
 }
 
-func NewService(repos *repository.Repository) *Service {
+func NewService(repos *repository.Repository, likeQueue *queue.LikeQueue) *Service {
 	return &Service{
 		Authorization: NewAuthService(repos.Authorization),
-		PostsList: NewPostListService(repos.PostsList),
+		PostsList: NewPostListService(repos.PostsList, likeQueue),
 	}
 }

@@ -1,15 +1,17 @@
 package main
 
 import (
-	_ "github.com/lib/pq"
+	"os"
+
+	handler "github.com/DavelPurov777/microblog/internal/handlers"
+	"github.com/DavelPurov777/microblog/internal/queue"
+	"github.com/DavelPurov777/microblog/internal/repository"
+	"github.com/DavelPurov777/microblog/internal/server"
+	"github.com/DavelPurov777/microblog/internal/service"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"github.com/DavelPurov777/microblog/internal/service"
-	"github.com/DavelPurov777/microblog/internal/repository"
-	"github.com/DavelPurov777/microblog/internal/handlers"
-	"github.com/DavelPurov777/microblog/internal/server"
-	"os"
 )
 
 func main() {
@@ -24,21 +26,29 @@ func main() {
 	}
 
 	db, err := service.NewPostgresDB(service.Config{
-		Host: viper.GetString("db.host"),
-		Port: viper.GetString("db.port"),
+		Host:     viper.GetString("db.host"),
+		Port:     viper.GetString("db.port"),
 		Username: viper.GetString("db.username"),
 		Password: os.Getenv("DB_PASSWORD"),
-		DBName: viper.GetString("db.dbname"),
-		SSLMode: viper.GetString("db.sslmode"),
+		DBName:   viper.GetString("db.dbname"),
+		SSLMode:  viper.GetString("db.sslmode"),
 	})
 
 	if err != nil {
 		logrus.Fatalf("failed to initialize DB: %s", err.Error())
 	}
 
-	repos := repository.NewRepository(db);
-	services := service.NewService(repos);
-	handlers := handler.NewHandler(services);
+	likeQueue := queue.NewLikeQueue(100)
+	repos := repository.NewRepository(db)
+	services := service.NewService(repos, likeQueue)
+	handlers := handler.NewHandler(services)
+
+	likeQueue.Start(func(id int) {
+		err := repos.PostsList.LikePost(id)
+		if err != nil {
+			logrus.Errorf("like error: %v", err)
+		}
+	})
 
 	srv := new(server.Server)
 	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
