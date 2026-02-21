@@ -4,6 +4,7 @@ import (
 	"os"
 
 	handler "github.com/DavelPurov777/microblog/internal/handlers"
+	mylogger "github.com/DavelPurov777/microblog/internal/logger"
 	"github.com/DavelPurov777/microblog/internal/queue"
 	"github.com/DavelPurov777/microblog/internal/repository"
 	"github.com/DavelPurov777/microblog/internal/server"
@@ -38,15 +39,17 @@ func main() {
 		logrus.Fatalf("failed to initialize DB: %s", err.Error())
 	}
 
+	logger := mylogger.NewLogger(100)
+	defer logger.Close()
 	likeQueue := queue.NewLikeQueue(100)
 	repos := repository.NewRepository(db)
 	services := service.NewService(repos, likeQueue)
-	handlers := handler.NewHandler(services)
+	handlers := handler.NewHandler(services, logger)
 
 	likeQueue.Start(func(id int) {
 		err := repos.PostsList.LikePost(id)
 		if err != nil {
-			logrus.Errorf("like error: %v", err)
+			logger.Error(err.Error())
 		}
 	})
 

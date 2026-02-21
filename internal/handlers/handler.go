@@ -1,16 +1,21 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/DavelPurov777/microblog/internal/logger"
 	"github.com/DavelPurov777/microblog/internal/service"
+	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
 	services *service.Service
+	logger   *logger.Logger
 }
 
-func NewHandler(services *service.Service) *Handler {
-	return &Handler{services: services}
+func NewHandler(services *service.Service, logger *logger.Logger) *Handler {
+	return &Handler{
+		services: services,
+		logger:   logger,
+	}
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {
