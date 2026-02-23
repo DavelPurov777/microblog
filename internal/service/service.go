@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/DavelPurov777/microblog/internal/logger"
 	"github.com/DavelPurov777/microblog/internal/models"
 	"github.com/DavelPurov777/microblog/internal/queue"
 	"github.com/DavelPurov777/microblog/internal/repository"
@@ -14,7 +15,8 @@ type PostsList interface {
 	Create(list models.Post) (int, error)
 	GetAll() ([]models.Post, error)
 	LikePost(listId int) error
-	ProcessLike(listId int) error
+	processLike(listId int) error
+	StartLikeWorker(logger *logger.Logger)
 }
 
 type Service struct {

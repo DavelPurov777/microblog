@@ -44,16 +44,11 @@ func main() {
 	}
 
 	likeQueue := queue.NewLikeQueue(100)
+
 	repos := repository.NewRepository(db)
 	services := service.NewService(repos, likeQueue)
+	services.PostsList.StartLikeWorker(logger)
 	handlers := handler.NewHandler(services, logger)
-
-	likeQueue.Start(func(id int) {
-		err := services.PostsList.ProcessLike(id)
-		if err != nil {
-			logger.Error(err.Error())
-		}
-	})
 
 	srv := new(server.Server)
 	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {

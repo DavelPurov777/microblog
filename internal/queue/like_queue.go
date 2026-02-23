@@ -14,10 +14,6 @@ func (q *LikeQueue) Publish(id int) {
 	q.ch <- id
 }
 
-func (q *LikeQueue) Start(worker func(int)) {
-	go func() {
-		for id := range q.ch {
-			worker(id)
-		}
-	}()
+func (q *LikeQueue) Channel() <-chan int {
+	return q.ch
 }
