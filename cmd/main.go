@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	handler "github.com/DavelPurov777/microblog/internal/handlers"
@@ -11,19 +12,21 @@ import (
 	"github.com/DavelPurov777/microblog/internal/service"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
 func main() {
-	logrus.SetFormatter(new(logrus.JSONFormatter))
+	logger := mylogger.NewLogger(100)
+	defer logger.Close()
 
 	if err := initConfig(); err != nil {
-		logrus.Fatalf("error initializing configs: %s", err.Error())
+		logger.Error(fmt.Sprintf("error initializing configs: %s", err.Error()))
+		os.Exit(1)
 	}
 
 	if err := godotenv.Load(); err != nil {
-		logrus.Fatalf("error loading env variables %s", err.Error())
+		logger.Error(fmt.Sprintf("error loading env variables: %s", err.Error()))
+		os.Exit(1)
 	}
 
 	db, err := service.NewPostgresDB(service.Config{
@@ -36,18 +39,17 @@ func main() {
 	})
 
 	if err != nil {
-		logrus.Fatalf("failed to initialize DB: %s", err.Error())
+		logger.Error(fmt.Sprintf("failed to initialize DB: %s", err.Error()))
+		os.Exit(1)
 	}
 
-	logger := mylogger.NewLogger(100)
-	defer logger.Close()
 	likeQueue := queue.NewLikeQueue(100)
 	repos := repository.NewRepository(db)
 	services := service.NewService(repos, likeQueue)
 	handlers := handler.NewHandler(services, logger)
 
 	likeQueue.Start(func(id int) {
-		err := repos.PostsList.LikePost(id)
+		err := services.PostsList.ProcessLike(id)
 		if err != nil {
 			logger.Error(err.Error())
 		}
@@ -55,9 +57,10 @@ func main() {
 
 	srv := new(server.Server)
 	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
-		logrus.Fatalf("error occured while running HTTP server %s", err.Error())
+		logger.Error(fmt.Sprintf("error occured while running HTTP server %s", err.Error()))
+		os.Exit(1)
 	}
-	logrus.Print("Todo App started")
+	logger.Info("Todo App started")
 }
 
 func initConfig() error {

@@ -30,3 +30,7 @@ func (s *PostListService) LikePost(listId int) error {
 	s.queue.Publish(listId)
 	return nil
 }
+
+func (s *PostListService) ProcessLike(listId int) error {
+	return s.repo.LikePost(listId)
+}
