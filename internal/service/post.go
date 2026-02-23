@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/DavelPurov777/microblog/internal/logger"
 	"github.com/DavelPurov777/microblog/internal/models"
 	"github.com/DavelPurov777/microblog/internal/queue"
 	"github.com/DavelPurov777/microblog/internal/repository"
@@ -36,7 +35,7 @@ func (s *PostListService) processLike(listId int) error {
 	return s.repo.LikePost(listId)
 }
 
-func (s *PostListService) StartLikeWorker(logger *logger.Logger) {
+func (s *PostListService) StartLikeWorker(logger Logger) {
 	go func() {
 		for id := range s.queue.Channel() {
 			if err := s.processLike(id); err != nil {
