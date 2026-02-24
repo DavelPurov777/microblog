@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"net/http"
+	_ "net/http/pprof"
+
 	handler "github.com/DavelPurov777/microblog/internal/handlers"
 	mylogger "github.com/DavelPurov777/microblog/internal/logger"
 	"github.com/DavelPurov777/microblog/internal/queue"
@@ -16,17 +19,21 @@ import (
 )
 
 func main() {
+	os.Exit(run())
+}
+
+func run() int {
 	logger := mylogger.NewLogger(100)
 	defer logger.Close()
 
-	if err := initConfig(); err != nil {
-		logger.Error(fmt.Sprintf("error initializing configs: %s", err.Error()))
-		os.Exit(1)
-	}
-
 	if err := godotenv.Load(); err != nil {
 		logger.Error(fmt.Sprintf("error loading env variables: %s", err.Error()))
-		os.Exit(1)
+		return 1
+	}
+
+	if err := initConfig(); err != nil {
+		logger.Error(fmt.Sprintf("error initializing configs: %s", err.Error()))
+		return 1
 	}
 
 	db, err := service.NewPostgresDB(service.Config{
@@ -40,22 +47,33 @@ func main() {
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to initialize DB: %s", err.Error()))
-		os.Exit(1)
+		return 1
 	}
+	defer db.Close()
 
 	likeQueue := queue.NewLikeQueue(100)
 
 	repos := repository.NewRepository(db)
 	services := service.NewService(repos, likeQueue)
 	services.PostsList.StartLikeWorker(logger)
-	handlers := handler.NewHandler(services, logger)
+	httpHandler := handler.NewHandler(services, logger)
+
+	if os.Getenv("PPROF_ENABLED") == "true" {
+		go func() {
+			logger.Info("pprof started on :6060")
+			if err := http.ListenAndServe("localhost:6060", nil); err != nil {
+				logger.Error(fmt.Sprintf("pprof server error: %v", err))
+			}
+		}()
+	}
 
 	srv := new(server.Server)
-	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
+	if err := srv.Run(viper.GetString("port"), httpHandler.InitRoutes()); err != nil {
 		logger.Error(fmt.Sprintf("error occured while running HTTP server %s", err.Error()))
-		os.Exit(1)
+		return 1
 	}
-	logger.Info("Todo App started")
+
+	return 0
 }
 
 func initConfig() error {
