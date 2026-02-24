@@ -1,10 +1,11 @@
 package service
- 
+
 import (
-	"fmt"
 	"crypto/sha1"
-	"github.com/DavelPurov777/microblog/internal/repository"
+	"fmt"
+
 	"github.com/DavelPurov777/microblog/internal/models"
+	"github.com/DavelPurov777/microblog/internal/repository"
 )
 
 const (
