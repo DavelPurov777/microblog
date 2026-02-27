@@ -2,10 +2,22 @@ package service
 
 import (
 	"github.com/DavelPurov777/microblog/internal/models"
-	"github.com/DavelPurov777/microblog/internal/queue"
-
-	"github.com/DavelPurov777/microblog/internal/repository"
 )
+
+type AuthorizationRepo interface {
+	CreateUser(models.User) (int, error)
+}
+
+type PostsListRepo interface {
+	Create(list models.Post) (int, error)
+	GetAll() ([]models.Post, error)
+	LikePost(listId int) error
+}
+
+type Repositories interface {
+	AuthorizationRepo
+	PostsListRepo
+}
 
 type Logger interface {
 	Error(string)
@@ -29,9 +41,9 @@ type Service struct {
 	PostsList
 }
 
-func NewService(repos *repository.Repository, likeQueue *queue.LikeQueue) *Service {
+func NewService(repos Repositories, likeQueue LikeQueue, salt string) *Service {
 	return &Service{
-		Authorization: NewAuthService(repos.Authorization),
-		PostsList:     NewPostListService(repos.PostsList, likeQueue),
+		Authorization: NewAuthService(repos, salt),
+		PostsList:     NewPostListService(repos, likeQueue),
 	}
 }

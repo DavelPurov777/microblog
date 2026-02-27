@@ -11,8 +11,9 @@ type mockRepo struct{}
 
 func TestService_generatePasswordHash(t *testing.T) {
 	password := "123456"
-	hash1 := generatePasswordHash(password)
-	hash2 := generatePasswordHash(password)
+	salt := "testsalt"
+	hash1 := generatePasswordHash(password, salt)
+	hash2 := generatePasswordHash(password, salt)
 
 	if hash1 != hash2 {
 		t.Errorf("hashes should be equal")
@@ -21,7 +22,7 @@ func TestService_generatePasswordHash(t *testing.T) {
 
 func TestService_CreateUser(t *testing.T) {
 	repo := &mockRepo{}
-	service := NewAuthService(repo)
+	service := NewAuthService(repo, "testsalt")
 	user := models.User{
 		Password: "123456",
 	}

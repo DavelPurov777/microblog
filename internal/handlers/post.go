@@ -9,19 +9,37 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type createPostRequest struct {
+	Title       string `json:"title" binding:"required"`
+	Description string `json:"description" binding:"required"`
+}
+
+type postResponse struct {
+	Id          int    `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Likes       int    `json:"likes"`
+}
+
 type getAllPostsResponse struct {
 	Data []models.Post `json:"data"`
 }
 
 func (h *Handler) createPost(c *gin.Context) {
-	var input models.Post
+	var input createPostRequest
 	if err := c.BindJSON(&input); err != nil {
 		h.logger.Error(fmt.Sprintf("create post: invalid input: %v", err))
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	id, err := h.services.PostsList.Create(input)
+	post := models.Post{
+		Title:       input.Title,
+		Description: input.Description,
+		Likes:       0,
+	}
+
+	id, err := h.services.PostsList.Create(post)
 	if err != nil {
 		h.logger.Error(fmt.Sprintf("create post failed: %v", err))
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())

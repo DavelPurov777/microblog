@@ -2,19 +2,27 @@ package repository
 
 import (
 	"fmt"
-	"github.com/jmoiron/sqlx"
+
 	"github.com/DavelPurov777/microblog/internal/models"
+	"github.com/jmoiron/sqlx"
 )
 
 type PostListPostgres struct {
 	db *sqlx.DB
 }
 
+type postRow struct {
+	Id          int    `db:"id"`
+	Title       string `db:"title"`
+	Description string `db:"description"`
+	Likes       int    `db:"likes"`
+}
+
 func NewPostListPostgres(db *sqlx.DB) *PostListPostgres {
 	return &PostListPostgres{db: db}
 }
 
-func (r *PostListPostgres) Create(post models.Post)  (int, error) {
+func (r *PostListPostgres) Create(post models.Post) (int, error) {
 	tx, err := r.db.Begin()
 	if err != nil {
 		return 0, err
@@ -32,11 +40,22 @@ func (r *PostListPostgres) Create(post models.Post)  (int, error) {
 }
 
 func (r *PostListPostgres) GetAll() ([]models.Post, error) {
-	var posts []models.Post
+	var rows []postRow
 	query := fmt.Sprintf("SELECT id, title, description, likes FROM %s", postsListsTable)
-	err := r.db.Select(&posts, query)
+	if err := r.db.Select(&rows, query); err != nil {
+		return nil, err
+	}
+	posts := make([]models.Post, len(rows))
+	for i := range rows {
+		posts[i] = models.Post{
+			Id:          rows[i].Id,
+			Title:       rows[i].Title,
+			Description: rows[i].Description,
+			Likes:       rows[i].Likes,
+		}
+	}
 
-	return posts, err
+	return posts, nil
 }
 
 func (r *PostListPostgres) LikePost(listId int) error {

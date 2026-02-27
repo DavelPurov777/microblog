@@ -13,6 +13,7 @@ import (
 	"github.com/DavelPurov777/microblog/internal/repository"
 	"github.com/DavelPurov777/microblog/internal/server"
 	"github.com/DavelPurov777/microblog/internal/service"
+	"github.com/DavelPurov777/microblog/internal/storage"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
@@ -36,7 +37,7 @@ func run() int {
 		return 1
 	}
 
-	db, err := service.NewPostgresDB(service.Config{
+	db, err := storage.NewPostgresDB(storage.Config{
 		Host:     viper.GetString("db.host"),
 		Port:     viper.GetString("db.port"),
 		Username: viper.GetString("db.username"),
@@ -52,9 +53,10 @@ func run() int {
 	defer db.Close()
 
 	likeQueue := queue.NewLikeQueue(100)
+	salt := viper.GetString("salt")
 
 	repos := repository.NewRepository(db)
-	services := service.NewService(repos, likeQueue)
+	services := service.NewService(repos, likeQueue, salt)
 	services.PostsList.StartLikeWorker(logger)
 	httpHandler := handler.NewHandler(services, logger)
 

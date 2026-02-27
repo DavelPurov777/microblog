@@ -1,8 +1,8 @@
 package models
 
 type Post struct {
-	Id int `json:"-" db:"id"`
-	Title string `json:"title" binding:"required"`
-	Description string `json:"description" binding:"required"`
-	Likes int `db:"likes" json:"likes"`
+	Id          int
+	Title       string
+	Description string
+	Likes       int
 }

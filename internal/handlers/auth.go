@@ -8,8 +8,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type registerInput struct {
+	Name     string `json:"name" binding:"required"`
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
 func (h *Handler) register(c *gin.Context) {
-	var input models.User
+	var input registerInput
 
 	if err := c.BindJSON(&input); err != nil {
 		h.logger.Error(fmt.Sprintf("registration failed due to %v", err))
@@ -17,7 +23,13 @@ func (h *Handler) register(c *gin.Context) {
 		return
 	}
 
-	id, err := h.services.Authorization.CreateUser(input)
+	user := models.User{
+		Name:     input.Name,
+		Username: input.Username,
+		Password: input.Password,
+	}
+
+	id, err := h.services.Authorization.CreateUser(user)
 	if err != nil {
 		h.logger.Error(fmt.Sprintf("registration failed due to %v", err))
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())

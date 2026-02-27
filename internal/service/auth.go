@@ -5,27 +5,23 @@ import (
 	"fmt"
 
 	"github.com/DavelPurov777/microblog/internal/models"
-	"github.com/DavelPurov777/microblog/internal/repository"
-)
-
-const (
-	salt = "fasdfasdfasdf"
 )
 
 type AuthService struct {
-	repo repository.Authorization
+	repo AuthorizationRepo
+	salt string
 }
 
-func NewAuthService(repo repository.Authorization) *AuthService {
-	return &AuthService{repo: repo}
+func NewAuthService(repo AuthorizationRepo, salt string) *AuthService {
+	return &AuthService{repo: repo, salt: salt}
 }
 
 func (s *AuthService) CreateUser(user models.User) (int, error) {
-	user.Password = generatePasswordHash(user.Password)
+	user.Password = generatePasswordHash(user.Password, s.salt)
 	return s.repo.CreateUser(user)
 }
 
-func generatePasswordHash(password string) string {
+func generatePasswordHash(password, salt string) string {
 	hash := sha1.New()
 	hash.Write([]byte(password))
 

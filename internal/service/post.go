@@ -1,9 +1,6 @@
 package service
 
-import (
-	"github.com/DavelPurov777/microblog/internal/models"
-	"github.com/DavelPurov777/microblog/internal/repository"
-)
+import "github.com/DavelPurov777/microblog/internal/models"
 
 type LikeQueue interface {
 	Publish(int)
@@ -11,11 +8,11 @@ type LikeQueue interface {
 }
 
 type PostListService struct {
-	repo  repository.PostsList
+	repo  PostsListRepo
 	queue LikeQueue
 }
 
-func NewPostListService(repo repository.PostsList, q LikeQueue) *PostListService {
+func NewPostListService(repo PostsListRepo, q LikeQueue) *PostListService {
 	return &PostListService{
 		repo:  repo,
 		queue: q,

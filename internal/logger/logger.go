@@ -7,12 +7,18 @@ type LogEvent struct {
 	Message string
 }
 
-type Logger struct {
+type Logger interface {
+	Info(msg string)
+	Error(msg string)
+	Close()
+}
+
+type channelLogger struct {
 	ch chan LogEvent
 }
 
-func NewLogger(buffer int) *Logger {
-	l := &Logger{
+func NewLogger(buffer int) *channelLogger {
+	l := &channelLogger{
 		ch: make(chan LogEvent, buffer),
 	}
 
@@ -21,20 +27,20 @@ func NewLogger(buffer int) *Logger {
 	return l
 }
 
-func (l *Logger) listen() {
+func (l *channelLogger) listen() {
 	for event := range l.ch {
 		log.Printf("[%s] %s", event.Level, event.Message)
 	}
 }
 
-func (l *Logger) Info(msg string) {
+func (l *channelLogger) Info(msg string) {
 	l.ch <- LogEvent{"INFO", msg}
 }
 
-func (l *Logger) Error(msg string) {
+func (l *channelLogger) Error(msg string) {
 	l.ch <- LogEvent{"ERROR", msg}
 }
 
-func (l *Logger) Close() {
+func (l *channelLogger) Close() {
 	close(l.ch)
 }
