@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: "microblog-db"
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: qwerty
+      POSTGRES_DB: microblog
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: microblog-pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db 
+    networks: 
+    - backend
+  
+  app:
+    build:
+      context: ..
+      dockerfile: deployments/Dockerfile
+    container_name: microblog-app
+    restart: always
+    depends_on:
+      - db 
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: qwerty
+      DB_NAME: microblog
+    ports:
+      - "8081:8080"
+    networks: 
+      - backend 
+
+volumes: 
+  postgres_data:
+
+networks:
+  backend:
