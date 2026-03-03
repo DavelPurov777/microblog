@@ -34,21 +34,23 @@ func run() int {
 
 	if err := initConfig(); err != nil {
 		logger.Error(fmt.Sprintf("error initializing configs: %s", err.Error()))
-		return 1
+		return 2
 	}
 
 	db, err := storage.NewPostgresDB(storage.Config{
-		Host:     viper.GetString("db.host"),
-		Port:     viper.GetString("db.port"),
-		Username: viper.GetString("db.username"),
-		Password: os.Getenv("DB_PASSWORD"),
-		DBName:   viper.GetString("db.dbname"),
-		SSLMode:  viper.GetString("db.sslmode"),
+		Host:     viper.GetString("db.host"),     // db
+		Port:     viper.GetString("db.port"),     // 5432
+		Username: viper.GetString("db.username"), // postgres
+		Password: os.Getenv("DB_PASSWORD"),       // qwerty
+		DBName:   viper.GetString("db.dbname"),   // microblog
+		SSLMode:  viper.GetString("db.sslmode"),  // disable
 	})
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to initialize DB: %s", err.Error()))
-		return 1
+		fmt.Println("err: ", err.Error())
+
+		return 3
 	}
 	defer db.Close()
 
@@ -72,7 +74,7 @@ func run() int {
 	srv := new(server.Server)
 	if err := srv.Run(viper.GetString("port"), httpHandler.InitRoutes()); err != nil {
 		logger.Error(fmt.Sprintf("error occured while running HTTP server %s", err.Error()))
-		return 1
+		return 4
 	}
 
 	return 0

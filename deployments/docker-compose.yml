@@ -26,7 +26,7 @@ services:
     depends_on:
       - db 
     networks: 
-    - backend
+      - backend
   
   app:
     build:
@@ -36,16 +36,12 @@ services:
     restart: always
     depends_on:
       - db 
-    environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: qwerty
-      DB_NAME: microblog
+    env_file:
+      - ../.env
     ports:
       - "8081:8080"
     networks: 
-      - backend 
+      - backend
 
 volumes: 
   postgres_data:

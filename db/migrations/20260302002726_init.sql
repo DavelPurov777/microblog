@@ -1,3 +1,4 @@
+-- +goose Up
 CREATE TABLE users (
     id serial not null unique,
     name varchar(255) not null ,
@@ -11,3 +12,7 @@ CREATE TABLE posts_lists (
     description varchar(255),
     likes int
 );
+
+-- +goose Down
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS posts_lists;
