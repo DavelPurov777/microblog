@@ -4,21 +4,16 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/DavelPurov777/microblog/internal/models"
 	"github.com/gin-gonic/gin"
 )
 
 type createPostRequest struct {
+	UserId      int    `json:"user_id" binding:"required"`
 	Title       string `json:"title" binding:"required"`
 	Description string `json:"description" binding:"required"`
-}
-
-type postResponse struct {
-	Id          int    `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Likes       int    `json:"likes"`
 }
 
 type getAllPostsResponse struct {
@@ -34,8 +29,10 @@ func (h *Handler) createPost(c *gin.Context) {
 	}
 
 	post := models.Post{
+		UserId:      input.UserId,
 		Title:       input.Title,
 		Description: input.Description,
+		CreatedAt:   time.Now(),
 		Likes:       0,
 	}
 

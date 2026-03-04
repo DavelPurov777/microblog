@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/DavelPurov777/microblog/internal/models"
 	"github.com/jmoiron/sqlx"
@@ -12,10 +13,12 @@ type PostListPostgres struct {
 }
 
 type postRow struct {
-	Id          int    `db:"id"`
-	Title       string `db:"title"`
-	Description string `db:"description"`
-	Likes       int    `db:"likes"`
+	Id          int       `db:"id"`
+	UserId      int       `db:"user_id"`
+	Title       string    `db:"title"`
+	Description string    `db:"description"`
+	CreatedAt   time.Time `db:"created_at"`
+	Likes       int       `db:"likes"`
 }
 
 func NewPostListPostgres(db *sqlx.DB) *PostListPostgres {
@@ -29,8 +32,8 @@ func (r *PostListPostgres) Create(post models.Post) (int, error) {
 	}
 
 	var id int
-	createPostQuery := fmt.Sprintf("INSERT INTO %s (title, description, likes) VALUES ($1, $2, $3) RETURNING id", postsListsTable)
-	row := tx.QueryRow(createPostQuery, post.Title, post.Description, post.Likes)
+	createPostQuery := fmt.Sprintf("INSERT INTO %s (user_id, title, description, created_at, likes) VALUES ($1, $2, $3, $4, $5) RETURNING id", postsListsTable)
+	row := tx.QueryRow(createPostQuery, post.UserId, post.Title, post.Description, post.CreatedAt, post.Likes)
 	if err := row.Scan(&id); err != nil {
 		tx.Rollback()
 		return 0, err
@@ -41,7 +44,7 @@ func (r *PostListPostgres) Create(post models.Post) (int, error) {
 
 func (r *PostListPostgres) GetAll() ([]models.Post, error) {
 	var rows []postRow
-	query := fmt.Sprintf("SELECT id, title, description, likes FROM %s", postsListsTable)
+	query := fmt.Sprintf("SELECT id, user_id, title, description, created_at, likes FROM %s", postsListsTable)
 	if err := r.db.Select(&rows, query); err != nil {
 		return nil, err
 	}
@@ -49,8 +52,10 @@ func (r *PostListPostgres) GetAll() ([]models.Post, error) {
 	for i := range rows {
 		posts[i] = models.Post{
 			Id:          rows[i].Id,
+			UserId:      rows[i].UserId,
 			Title:       rows[i].Title,
 			Description: rows[i].Description,
+			CreatedAt:   rows[i].CreatedAt,
 			Likes:       rows[i].Likes,
 		}
 	}
