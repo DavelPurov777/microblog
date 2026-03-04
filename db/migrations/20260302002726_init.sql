@@ -18,16 +18,18 @@ CREATE TABLE posts_lists (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- CREATE TABLE likes {
---     id SERIAL PRIMARY KEY,
---     user_id INT NOT NULL,
---     post_id INT NOT NULL,
---     created_at TIMESTAMPZ DEFAULT now(),
+CREATE TABLE likes (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    post_id INT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT now(),
 
---     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
---     FOREIGN KEY (post_id) REFERENCES posts_lists(id) ON DELETE CASCADE
--- }
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (post_id) REFERENCES posts_lists(id) ON DELETE CASCADE,
+    UNIQUE (user_id, post_id)
+);
 
 -- +goose Down
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS posts_lists;
+DROP TABLE IF EXISTS likes;

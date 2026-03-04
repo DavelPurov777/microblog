@@ -5,15 +5,19 @@ import (
 )
 
 type MockQueue struct {
-	published []int
-	ch        chan int
+	published []LikeEvent
+	ch        chan LikeEvent
 }
 
-func (m *MockQueue) Publish(id int) {
-	m.published = append(m.published, id)
+func NewMockQueue() *MockQueue {
+	return &MockQueue{ch: make(chan LikeEvent, 10)}
 }
 
-func (m *MockQueue) Channel() <-chan int {
+func (m *MockQueue) Publish(ev LikeEvent) {
+	m.published = append(m.published, ev)
+}
+
+func (m *MockQueue) Channel() <-chan LikeEvent {
 	return m.ch
 }
 
@@ -21,12 +25,12 @@ func TestService_LikePost(t *testing.T) {
 	q := &MockQueue{}
 	s := &PostListService{queue: q}
 
-	err := s.LikePost(42)
+	err := s.LikePost(1, 42)
 	if err != nil {
 		t.Fatalf("unexpected error")
 	}
 
-	if len(q.published) != 1 || q.published[0] != 42 {
+	if len(q.published) != 1 || q.published[0].PostID != 1 {
 		t.Errorf("publish not called correctly")
 	}
 }

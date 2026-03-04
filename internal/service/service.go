@@ -11,7 +11,7 @@ type AuthorizationRepo interface {
 type PostsListRepo interface {
 	Create(list models.Post) (int, error)
 	GetAll() ([]models.Post, error)
-	LikePost(listId int) error
+	LikePost(postId, userId int) error
 }
 
 type Repositories interface {
@@ -31,8 +31,8 @@ type Authorization interface {
 type PostsList interface {
 	Create(list models.Post) (int, error)
 	GetAll() ([]models.Post, error)
-	LikePost(listId int) error
-	processLike(listId int) error
+	LikePost(postId, userId int) error
+	processLike(ev LikeEvent) error
 	StartLikeWorker(logger Logger)
 }
 

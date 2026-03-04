@@ -20,6 +20,10 @@ type getAllPostsResponse struct {
 	Data []models.Post `json:"data"`
 }
 
+type likePostRequest struct {
+	UserId int `json:"user_id" binding:"required"`
+}
+
 func (h *Handler) createPost(c *gin.Context) {
 	var input createPostRequest
 	if err := c.BindJSON(&input); err != nil {
@@ -64,14 +68,21 @@ func (h *Handler) getAllPosts(c *gin.Context) {
 }
 
 func (h *Handler) likePost(c *gin.Context) {
-	listId, err := strconv.Atoi(c.Param("id"))
+	postId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		h.logger.Error(fmt.Sprintf("like post: invalid id: %v", err))
 		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
 		return
 	}
 
-	if err := h.services.PostsList.LikePost(listId); err != nil {
+	var input likePostRequest
+	if err := c.BindJSON(&input); err != nil {
+		h.logger.Error(fmt.Sprintf("missing userId in body: %v", err))
+		newErrorResponse(c, http.StatusBadRequest, "missing userId in body")
+		return
+	}
+
+	if err := h.services.PostsList.LikePost(postId, input.UserId); err != nil {
 		h.logger.Error(fmt.Sprintf("like to post has failed due to %v", err))
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

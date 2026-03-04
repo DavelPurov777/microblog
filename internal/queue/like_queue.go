@@ -1,19 +1,21 @@
 package queue
 
+import "github.com/DavelPurov777/microblog/internal/service"
+
 type LikeQueue struct {
-	ch chan int
+	ch chan service.LikeEvent
 }
 
 func NewLikeQueue(buffer int) *LikeQueue {
 	return &LikeQueue{
-		ch: make(chan int, buffer),
+		ch: make(chan service.LikeEvent, buffer),
 	}
 }
 
-func (q *LikeQueue) Publish(id int) {
-	q.ch <- id
+func (q *LikeQueue) Publish(ev service.LikeEvent) {
+	q.ch <- ev
 }
 
-func (q *LikeQueue) Channel() <-chan int {
+func (q *LikeQueue) Channel() <-chan service.LikeEvent {
 	return q.ch
 }

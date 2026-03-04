@@ -63,9 +63,38 @@ func (r *PostListPostgres) GetAll() ([]models.Post, error) {
 	return posts, nil
 }
 
-func (r *PostListPostgres) LikePost(listId int) error {
-	query := fmt.Sprintf("UPDATE %s SET likes = likes + 1 WHERE id = $1", postsListsTable)
+func (r *PostListPostgres) LikePost(postId, userId int) error {
+	tx, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback() }()
 
-	_, err := r.db.Exec(query, listId)
-	return err
+	res, err := tx.Exec(
+		`INSERT INTO likes (user_id, post_id) VALUES ($1, $2)
+		ON CONFLICT (user_id, post_id) DO NOTHING`,
+		userId, postId,
+	)
+	if err != nil {
+		return err
+	}
+
+	affected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if affected == 0 {
+		return tx.Commit()
+	}
+
+	_, err = tx.Exec(
+		`UPDATE posts_lists SET likes = likes + 1 WHERE id = $1`,
+		postId,
+	)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
