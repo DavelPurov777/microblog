@@ -1,12 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"net/http"
 	_ "net/http/pprof"
 
+	"github.com/DavelPurov777/microblog/configs/config"
 	handler "github.com/DavelPurov777/microblog/internal/handlers"
 	mylogger "github.com/DavelPurov777/microblog/internal/logger"
 	"github.com/DavelPurov777/microblog/internal/queue"
@@ -15,8 +18,6 @@ import (
 	"github.com/DavelPurov777/microblog/internal/service"
 	"github.com/DavelPurov777/microblog/internal/storage"
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
-	"github.com/spf13/viper"
 )
 
 func main() {
@@ -32,30 +33,27 @@ func run() int {
 		return 1
 	}
 
-	if err := initConfig(); err != nil {
+	cfg, err := config.Load()
+	if err != nil {
 		logger.Error(fmt.Sprintf("error initializing configs: %s", err.Error()))
 		return 2
 	}
 
-	db, err := storage.NewPostgresDB(storage.Config{
-		Host:     viper.GetString("db.host"),     // db
-		Port:     viper.GetString("db.port"),     // 5432
-		Username: viper.GetString("db.username"), // postgres
-		Password: os.Getenv("DB_PASSWORD"),       // qwerty
-		DBName:   viper.GetString("db.dbname"),   // microblog
-		SSLMode:  viper.GetString("db.sslmode"),  // disable
-	})
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
+	pool, err := storage.NewPgxPool(ctx, cfg.DB, cfg.DBPool)
 	if err != nil {
-		logger.Error(fmt.Sprintf("failed to initialize DB: %s", err.Error()))
-		fmt.Println("err: ", err.Error())
-
+		logger.Error(fmt.Sprintf("failed to initialize NewPxgPool: %s", err.Error()))
 		return 3
 	}
+	defer pool.Close()
+
+	db := storage.NewSQLXFromPgxPool(pool)
 	defer db.Close()
 
-	likeQueue := queue.NewLikeQueue(100)
-	salt := viper.GetString("salt")
+	likeQueue := queue.NewLikeQueue(cfg.LikeQueueBuffer)
+	salt := cfg.Salt
 
 	repos := repository.NewRepository(db)
 	services := service.NewService(repos, likeQueue, salt)
@@ -72,17 +70,10 @@ func run() int {
 	}
 
 	srv := new(server.Server)
-	if err := srv.Run(viper.GetString("port"), httpHandler.InitRoutes()); err != nil {
+	if err := srv.Run(cfg.Port, httpHandler.InitRoutes()); err != nil {
 		logger.Error(fmt.Sprintf("error occured while running HTTP server %s", err.Error()))
 		return 4
 	}
 
 	return 0
-}
-
-func initConfig() error {
-	viper.AddConfigPath("configs")
-	viper.SetConfigName("config")
-
-	return viper.ReadInConfig()
 }
