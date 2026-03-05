@@ -1,10 +1,10 @@
 package repository
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/DavelPurov777/microblog/internal/models"
+	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -32,8 +32,18 @@ func (r *PostListPostgres) Create(post models.Post) (int, error) {
 	}
 
 	var id int
-	createPostQuery := fmt.Sprintf("INSERT INTO %s (user_id, title, description, created_at, likes) VALUES ($1, $2, $3, $4, $5) RETURNING id", postsListsTable)
-	row := tx.QueryRow(createPostQuery, post.UserId, post.Title, post.Description, post.CreatedAt, post.Likes)
+	query, args, err := psql.
+		Insert(postsListsTable).
+		Columns("user_id", "title", "description", "created_at", "likes").
+		Values(post.UserId, post.Title, post.Description, post.CreatedAt, post.Likes).
+		Suffix("RETURNING id").
+		ToSql()
+	if err != nil {
+		tx.Rollback()
+		return 0, err
+	}
+
+	row := tx.QueryRow(query, args...)
 	if err := row.Scan(&id); err != nil {
 		tx.Rollback()
 		return 0, err
@@ -44,8 +54,15 @@ func (r *PostListPostgres) Create(post models.Post) (int, error) {
 
 func (r *PostListPostgres) GetAll() ([]models.Post, error) {
 	var rows []postRow
-	query := fmt.Sprintf("SELECT id, user_id, title, description, created_at, likes FROM %s", postsListsTable)
-	if err := r.db.Select(&rows, query); err != nil {
+	query, args, err := psql.
+		Select("id", "user_id", "title", "description", "created_at", "likes").
+		From(postsListsTable).
+		ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := r.db.Select(&rows, query, args...); err != nil {
 		return nil, err
 	}
 	posts := make([]models.Post, len(rows))
@@ -70,11 +87,17 @@ func (r *PostListPostgres) LikePost(postId, userId int) error {
 	}
 	defer func() { _ = tx.Rollback() }()
 
-	res, err := tx.Exec(
-		`INSERT INTO likes (user_id, post_id) VALUES ($1, $2)
-		ON CONFLICT (user_id, post_id) DO NOTHING`,
-		userId, postId,
-	)
+	insertQ, insertArgs, err := psql.
+		Insert("likes").
+		Columns("user_id", "post_id").
+		Values(userId, postId).
+		Suffix("ON CONFLICT (user_id, post_id) DO NOTHING").
+		ToSql()
+	if err != nil {
+		return err
+	}
+
+	res, err := tx.Exec(insertQ, insertArgs...)
 	if err != nil {
 		return err
 	}
@@ -88,10 +111,16 @@ func (r *PostListPostgres) LikePost(postId, userId int) error {
 		return tx.Commit()
 	}
 
-	_, err = tx.Exec(
-		`UPDATE posts_lists SET likes = likes + 1 WHERE id = $1`,
-		postId,
-	)
+	updateQ, updateArgs, err := psql.
+		Update(postsListsTable).
+		Set("likes", sq.Expr("likes + 1")).
+		Where(sq.Eq{"id": postId}).
+		ToSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(updateQ, updateArgs...)
 	if err != nil {
 		return err
 	}
