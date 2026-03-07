@@ -29,8 +29,7 @@ func run() int {
 	defer logger.Close()
 
 	if err := godotenv.Load(); err != nil {
-		logger.Error(fmt.Sprintf("error loading env variables: %s", err.Error()))
-		return 1
+		logger.Info(fmt.Sprintf("error loading env variables: %s", err.Error()))
 	}
 
 	cfg, err := config.Load()
