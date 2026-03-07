@@ -29,6 +29,15 @@ CREATE TABLE likes (
     UNIQUE (user_id, post_id)
 );
 
+-- индексы для FK
+CREATE INDEX idx_posts_lists_user_id ON posts_lists (user_id);
+CREATE INDEX idx_likes_user_id ON likes (user_id);
+CREATE INDEX idx_likes_post_id ON likes (post_id);
+
+-- pt_trgm для поиска
+CREATE EXTENSION IF NOT EXISTS pg_trgm; 
+CREATE INDEX idx_posts_lists_title ON posts_lists USING gin (title gin_trgm_ops);
+
 -- +goose Down
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS posts_lists;
