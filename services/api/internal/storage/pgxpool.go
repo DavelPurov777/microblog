@@ -4,31 +4,14 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"time"
 
+	"github.com/DavelPurov777/microblog/configs/config"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 )
 
-type Config struct {
-	Host     string
-	Port     string
-	Username string
-	Password string
-	DBName   string
-	SSLMode  string
-}
-
-type PoolSettings struct {
-	MaxConns          int32
-	MinConns          int32
-	MaxConnLifeTime   time.Duration
-	MaxConnIdleTime   time.Duration
-	HealthCheckPeriod time.Duration
-}
-
-func NewPgxPool(ctx context.Context, cfg Config, poolCfg PoolSettings) (*pgxpool.Pool, error) {
+func NewPgxPool(ctx context.Context, cfg config.ConfigPgxpool, poolCfg config.PoolSettings) (*pgxpool.Pool, error) {
 	dsn := fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		url.PathEscape(cfg.Username),

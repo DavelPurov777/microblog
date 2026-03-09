@@ -2,8 +2,8 @@ package config
 
 import (
 	"os"
+	"time"
 
-	"github.com/DavelPurov777/microblog/internal/storage"
 	"github.com/spf13/viper"
 )
 
@@ -13,8 +13,25 @@ type Config struct {
 	PprofEnabled    bool
 	LikeQueueBuffer int
 
-	DB     storage.Config
-	DBPool storage.PoolSettings
+	DB     ConfigPgxpool
+	DBPool PoolSettings
+}
+
+type ConfigPgxpool struct {
+	Host     string
+	Port     string
+	Username string
+	Password string
+	DBName   string
+	SSLMode  string
+}
+
+type PoolSettings struct {
+	MaxConns          int32
+	MinConns          int32
+	MaxConnLifeTime   time.Duration
+	MaxConnIdleTime   time.Duration
+	HealthCheckPeriod time.Duration
 }
 
 func Load() (Config, error) {
@@ -41,7 +58,7 @@ func Load() (Config, error) {
 		PprofEnabled:    os.Getenv("PPROF_ENABLED") == "true",
 		LikeQueueBuffer: viper.GetInt("like_queue.buffer"),
 
-		DB: storage.Config{
+		DB: ConfigPgxpool{
 			Host:     viper.GetString("db.host"),
 			Port:     viper.GetString("db.port"),
 			Username: viper.GetString("db.username"),
@@ -50,7 +67,7 @@ func Load() (Config, error) {
 			SSLMode:  viper.GetString("db.sslmode"),
 		},
 
-		DBPool: storage.PoolSettings{
+		DBPool: PoolSettings{
 			MaxConns:          viper.GetInt32("db.pool.max_conns"),
 			MinConns:          viper.GetInt32("db.pool.min_conns"),
 			MaxConnLifeTime:   viper.GetDuration("db.pool.max_conn_lifetime"),

@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/DavelPurov777/microblog/internal/models"
+	"github.com/DavelPurov777/microblog/services/api/internal/models"
 	"github.com/gin-gonic/gin"
 )
 

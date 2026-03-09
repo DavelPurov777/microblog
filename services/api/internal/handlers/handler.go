@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"github.com/DavelPurov777/microblog/internal/logger"
-	"github.com/DavelPurov777/microblog/internal/service"
+	"github.com/DavelPurov777/microblog/services/api/internal/logger"
+	"github.com/DavelPurov777/microblog/services/api/internal/service"
 	"github.com/gin-gonic/gin"
 )
 

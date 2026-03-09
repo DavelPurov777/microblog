@@ -3,7 +3,7 @@ package repository
 import (
 	"time"
 
-	"github.com/DavelPurov777/microblog/internal/models"
+	"github.com/DavelPurov777/microblog/services/api/internal/models"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 )

@@ -1,6 +1,6 @@
 package service
 
-import "github.com/DavelPurov777/microblog/internal/models"
+import "github.com/DavelPurov777/microblog/services/api/internal/models"
 
 type LikeEvent struct {
 	PostID int

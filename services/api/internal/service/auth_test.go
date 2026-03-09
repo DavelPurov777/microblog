@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/DavelPurov777/microblog/internal/models"
+	"github.com/DavelPurov777/microblog/services/api/internal/models"
 )
 
 type mockRepo struct{}

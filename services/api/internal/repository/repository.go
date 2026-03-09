@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/DavelPurov777/microblog/internal/service"
+	"github.com/DavelPurov777/microblog/services/api/internal/service"
 	"github.com/jmoiron/sqlx"
 )
 

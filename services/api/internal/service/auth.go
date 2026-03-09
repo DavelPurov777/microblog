@@ -4,7 +4,7 @@ import (
 	"crypto/sha1"
 	"fmt"
 
-	"github.com/DavelPurov777/microblog/internal/models"
+	"github.com/DavelPurov777/microblog/services/api/internal/models"
 )
 
 type AuthService struct {

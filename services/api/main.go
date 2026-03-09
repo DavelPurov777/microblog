@@ -10,13 +10,13 @@ import (
 	_ "net/http/pprof"
 
 	"github.com/DavelPurov777/microblog/configs/config"
-	handler "github.com/DavelPurov777/microblog/internal/handlers"
-	mylogger "github.com/DavelPurov777/microblog/internal/logger"
-	"github.com/DavelPurov777/microblog/internal/queue"
-	"github.com/DavelPurov777/microblog/internal/repository"
-	"github.com/DavelPurov777/microblog/internal/server"
-	"github.com/DavelPurov777/microblog/internal/service"
-	"github.com/DavelPurov777/microblog/internal/storage"
+	handler "github.com/DavelPurov777/microblog/services/api/internal/handlers"
+	mylogger "github.com/DavelPurov777/microblog/services/api/internal/logger"
+	"github.com/DavelPurov777/microblog/services/api/internal/queue"
+	"github.com/DavelPurov777/microblog/services/api/internal/repository"
+	"github.com/DavelPurov777/microblog/services/api/internal/server"
+	"github.com/DavelPurov777/microblog/services/api/internal/service"
+	"github.com/DavelPurov777/microblog/services/api/internal/storage"
 	"github.com/joho/godotenv"
 )
 

@@ -1,6 +1,6 @@
 package queue
 
-import "github.com/DavelPurov777/microblog/internal/service"
+import "github.com/DavelPurov777/microblog/services/api/internal/service"
 
 type LikeQueue struct {
 	ch chan service.LikeEvent
