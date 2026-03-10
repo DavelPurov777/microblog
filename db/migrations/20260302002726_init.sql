@@ -39,6 +39,6 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE INDEX idx_posts_lists_title ON posts_lists USING gin (title gin_trgm_ops);
 
 -- +goose Down
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS posts_lists;
 DROP TABLE IF EXISTS likes;
+DROP TABLE IF EXISTS posts_lists;
+DROP TABLE IF EXISTS users;

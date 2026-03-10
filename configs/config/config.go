@@ -7,6 +7,11 @@ import (
 	"github.com/spf13/viper"
 )
 
+type KafkaConfig struct {
+	Brokers    []string
+	LikesTopic string
+	ClientID   string
+}
 type Config struct {
 	Port            string
 	Salt            string
@@ -15,6 +20,7 @@ type Config struct {
 
 	DB     ConfigPgxpool
 	DBPool PoolSettings
+	Kafka  KafkaConfig
 }
 
 type ConfigPgxpool struct {
@@ -45,6 +51,8 @@ func Load() (Config, error) {
 	viper.SetDefault("port", "8080")
 	viper.SetDefault("like_queue.buffer", 100)
 
+	viper.SetDefault("kafka.likes_topic", "likes")
+	viper.SetDefault("kafka.client_id", "microblog-api")
 	viper.SetDefault("db.sslmode", "disable")
 	viper.SetDefault("db.pool.max_conns", int32(10))
 	viper.SetDefault("db.pool.min_conns", int32(0))
@@ -73,6 +81,12 @@ func Load() (Config, error) {
 			MaxConnLifeTime:   viper.GetDuration("db.pool.max_conn_lifetime"),
 			MaxConnIdleTime:   viper.GetDuration("db.pool.max_conn_idle_time"),
 			HealthCheckPeriod: viper.GetDuration("db.pool.health_check_period"),
+		},
+
+		Kafka: KafkaConfig{
+			Brokers:    viper.GetStringSlice("kafka.brokers"),
+			LikesTopic: viper.GetString("kafka.likes_topic"),
+			ClientID:   viper.GetString("kafka.client_id"),
 		},
 	}, nil
 }

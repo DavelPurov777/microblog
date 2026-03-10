@@ -7,3 +7,9 @@ db:
     dbname: "microblog"
     sslmode: "disable"
     password: "qwerty"
+
+kafka:
+    brokers:
+        - "kafka:9092"
+    likes_topic: "likes"
+    client_id: "microblog-api"

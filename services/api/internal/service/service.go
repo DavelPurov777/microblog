@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/DavelPurov777/microblog/services/api/internal/events"
 	"github.com/DavelPurov777/microblog/services/api/internal/models"
 )
 
@@ -32,8 +33,6 @@ type PostsList interface {
 	Create(list models.Post) (int, error)
 	GetAll() ([]models.Post, error)
 	LikePost(postId, userId int) error
-	processLike(ev LikeEvent) error
-	StartLikeWorker(logger Logger)
 }
 
 type Service struct {
@@ -41,9 +40,9 @@ type Service struct {
 	PostsList
 }
 
-func NewService(repos Repositories, likeQueue LikeQueue, salt string) *Service {
+func NewService(repos Repositories, likePublisher events.LikeEventPublisher, salt string) *Service {
 	return &Service{
 		Authorization: NewAuthService(repos, salt),
-		PostsList:     NewPostListService(repos, likeQueue),
+		PostsList:     NewPostListService(repos, likePublisher),
 	}
 }

@@ -1,24 +1,19 @@
 package service
 
-import "github.com/DavelPurov777/microblog/services/api/internal/models"
+import (
+	"time"
 
-type LikeEvent struct {
-	PostID int
-	UserID int
-}
-
-type LikeQueue interface {
-	Publish(LikeEvent)
-	Channel() <-chan LikeEvent
-}
+	"github.com/DavelPurov777/microblog/services/api/internal/events"
+	"github.com/DavelPurov777/microblog/services/api/internal/models"
+)
 
 type PostListService struct {
-	repo  PostsListRepo
-	queue LikeQueue
+	repo      PostsListRepo
+	publisher events.LikeEventPublisher
 }
 
-func NewPostListService(repo PostsListRepo, q LikeQueue) *PostListService {
-	return &PostListService{repo: repo, queue: q}
+func NewPostListService(repo PostsListRepo, publisher events.LikeEventPublisher) *PostListService {
+	return &PostListService{repo: repo, publisher: publisher}
 }
 
 func (s *PostListService) Create(list models.Post) (int, error) {
@@ -30,20 +25,11 @@ func (s *PostListService) GetAll() ([]models.Post, error) {
 }
 
 func (s *PostListService) LikePost(postId, userId int) error {
-	s.queue.Publish(LikeEvent{PostID: postId, UserID: userId})
-	return nil
-}
+	ev := events.LikeEvent{
+		PostID:    postId,
+		UserID:    userId,
+		CreatedAt: time.Now(),
+	}
 
-func (s *PostListService) processLike(ev LikeEvent) error {
-	return s.repo.LikePost(ev.PostID, ev.UserID)
-}
-
-func (s *PostListService) StartLikeWorker(logger Logger) {
-	go func() {
-		for ev := range s.queue.Channel() {
-			if err := s.processLike(ev); err != nil {
-				logger.Error(err.Error())
-			}
-		}
-	}()
+	return s.publisher.PublishLike(ev)
 }

@@ -10,9 +10,9 @@ import (
 	_ "net/http/pprof"
 
 	"github.com/DavelPurov777/microblog/configs/config"
+	"github.com/DavelPurov777/microblog/services/api/internal/events"
 	handler "github.com/DavelPurov777/microblog/services/api/internal/handlers"
 	mylogger "github.com/DavelPurov777/microblog/services/api/internal/logger"
-	"github.com/DavelPurov777/microblog/services/api/internal/queue"
 	"github.com/DavelPurov777/microblog/services/api/internal/repository"
 	"github.com/DavelPurov777/microblog/services/api/internal/server"
 	"github.com/DavelPurov777/microblog/services/api/internal/service"
@@ -51,12 +51,15 @@ func run() int {
 	db := storage.NewSQLXFromPgxPool(pool)
 	defer db.Close()
 
-	likeQueue := queue.NewLikeQueue(cfg.LikeQueueBuffer)
 	salt := cfg.Salt
 
 	repos := repository.NewRepository(db)
-	services := service.NewService(repos, likeQueue, salt)
-	services.PostsList.StartLikeWorker(logger)
+	likePublisher := events.NewKafkaLikePublisher(
+		cfg.Kafka.Brokers,
+		cfg.Kafka.LikesTopic,
+		cfg.Kafka.ClientID,
+	)
+	services := service.NewService(repos, likePublisher, salt)
 	httpHandler := handler.NewHandler(services, logger)
 
 	if os.Getenv("PPROF_ENABLED") == "true" {
