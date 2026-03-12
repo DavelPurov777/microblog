@@ -41,7 +41,7 @@ func (c *LikeConsumer) Run(ctx context.Context) error {
 			continue
 		}
 
-		if err := c.repo.IncrementLikes(ev.PostID, 1); err != nil {
+		if err := c.repo.IncrementLikes(ev.UserID, ev.PostID); err != nil {
 			log.Printf("failed to increment likes %v", err)
 			continue
 		}

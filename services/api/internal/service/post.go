@@ -24,10 +24,10 @@ func (s *PostListService) GetAll() ([]models.Post, error) {
 	return s.repo.GetAll()
 }
 
-func (s *PostListService) LikePost(postId, userId int) error {
+func (s *PostListService) LikePost(PostID, UserID int) error {
 	ev := events.LikeEvent{
-		PostID:    postId,
-		UserID:    userId,
+		PostID:    PostID,
+		UserID:    UserID,
 		CreatedAt: time.Now(),
 	}
 

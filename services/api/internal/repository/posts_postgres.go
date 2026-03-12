@@ -55,8 +55,16 @@ func (r *PostListPostgres) Create(post models.Post) (int, error) {
 func (r *PostListPostgres) GetAll() ([]models.Post, error) {
 	var rows []postRow
 	query, args, err := psql.
-		Select("id", "user_id", "title", "description", "created_at", "likes").
-		From(postsListsTable).
+		Select(
+			"p.id",
+			"p.user_id",
+			"p.title",
+			"p.description",
+			"p.created_at",
+			"COALESCE(e.likes, 0) as likes",
+		).
+		From(postsListsTable + " p").
+		LeftJoin("engagement_post_likes e ON p.id = e.post_id").
 		ToSql()
 	if err != nil {
 		return nil, err
