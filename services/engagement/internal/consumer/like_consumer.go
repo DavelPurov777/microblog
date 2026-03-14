@@ -35,7 +35,7 @@ func (c *LikeConsumer) Run(ctx context.Context) error {
 			return err
 		}
 
-		var ev events.LikeEvent
+		var ev events.PostLikedEvent
 		if err := json.Unmarshal(m.Value, &ev); err != nil {
 			log.Printf("failed to unmarshal like event: %v", err)
 			continue

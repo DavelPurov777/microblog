@@ -8,9 +8,10 @@ import (
 )
 
 type KafkaConfig struct {
-	Brokers    []string
-	LikesTopic string
-	ClientID   string
+	Brokers     []string
+	LikesTopic  string
+	EventsTopic string
+	ClientID    string
 }
 type Config struct {
 	Port            string

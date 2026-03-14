@@ -40,9 +40,13 @@ type Service struct {
 	PostsList
 }
 
-func NewService(repos Repositories, likePublisher events.LikeEventPublisher, salt string) *Service {
+func NewService(
+	repos Repositories,
+	salt string,
+	publisher events.EventPublisher,
+) *Service {
 	return &Service{
-		Authorization: NewAuthService(repos, salt),
-		PostsList:     NewPostListService(repos, likePublisher),
+		Authorization: NewAuthService(repos, salt, publisher),
+		PostsList:     NewPostListService(repos, publisher),
 	}
 }

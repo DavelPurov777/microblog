@@ -54,12 +54,13 @@ func run() int {
 	salt := cfg.Salt
 
 	repos := repository.NewRepository(db)
-	likePublisher := events.NewKafkaLikePublisher(
+	publisher := events.NewKafkaPublisher(
 		cfg.Kafka.Brokers,
 		cfg.Kafka.LikesTopic,
 		cfg.Kafka.ClientID,
 	)
-	services := service.NewService(repos, likePublisher, salt)
+
+	services := service.NewService(repos, salt, publisher)
 	httpHandler := handler.NewHandler(services, logger)
 
 	if os.Getenv("PPROF_ENABLED") == "true" {

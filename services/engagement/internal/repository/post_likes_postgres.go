@@ -4,7 +4,6 @@ import (
 	"database/sql"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/lib/pq"
 )
 
 type PostLikesRepo struct {
@@ -52,15 +51,6 @@ func (r *PostLikesRepo) IncrementLikes(userID, postID int) error {
 	}
 
 	return tx.Commit()
-}
-
-// TODO: погуглить что делает функция ниже
-func isUniqueViolation(err error) bool {
-	if pqErr, ok := err.(*pq.Error); ok {
-		return pqErr.Code == "23505"
-	}
-
-	return false
 }
 
 func (r *PostLikesRepo) GetLikes(postID int) (int64, error) {

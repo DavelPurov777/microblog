@@ -1,5 +1,7 @@
 package events
 
-type LikeEventPublisher interface {
-	PublishLike(LikeEvent) error
+type EventPublisher interface {
+	PublishPostLiked(PostLikedEvent) error
+	PublishPostCreated(PostCreatedEvent) error
+	PublishUserRegistered(UserRegisteredEvent) error
 }
