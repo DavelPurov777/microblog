@@ -3,6 +3,7 @@ package events
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"strconv"
 
 	"github.com/segmentio/kafka-go"
@@ -63,5 +64,11 @@ func (p *KafkaEventPublisher) PublishUserRegistered(ev UserRegisteredEvent) erro
 		Value: data,
 	}
 
-	return p.writer.WriteMessages(context.Background(), msg)
+	err = p.writer.WriteMessages(context.Background(), msg)
+	if err != nil {
+		log.Printf("publishing user_registered event: %+v", ev)
+		return err
+	}
+
+	return nil
 }

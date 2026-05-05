@@ -8,10 +8,10 @@ import (
 )
 
 type KafkaConfig struct {
-	Brokers     []string
-	LikesTopic  string
-	EventsTopic string
-	ClientID    string
+	Brokers             []string
+	LikesTopic          string
+	UserRegisteredTopic string
+	ClientID            string
 }
 type Config struct {
 	Port            string
@@ -53,6 +53,7 @@ func Load() (Config, error) {
 	viper.SetDefault("like_queue.buffer", 100)
 
 	viper.SetDefault("kafka.likes_topic", "likes")
+	viper.SetDefault("kafka.user_registered_topic", "user_registered")
 	viper.SetDefault("kafka.client_id", "microblog-api")
 	viper.SetDefault("db.sslmode", "disable")
 	viper.SetDefault("db.pool.max_conns", int32(10))
@@ -85,9 +86,10 @@ func Load() (Config, error) {
 		},
 
 		Kafka: KafkaConfig{
-			Brokers:    viper.GetStringSlice("kafka.brokers"),
-			LikesTopic: viper.GetString("kafka.likes_topic"),
-			ClientID:   viper.GetString("kafka.client_id"),
+			Brokers:             viper.GetStringSlice("kafka.brokers"),
+			LikesTopic:          viper.GetString("kafka.likes_topic"),
+			UserRegisteredTopic: viper.GetString("kafka.user_registered_topic"),
+			ClientID:            viper.GetString("kafka.client_id"),
 		},
 	}, nil
 }

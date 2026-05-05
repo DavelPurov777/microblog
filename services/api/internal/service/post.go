@@ -31,7 +31,9 @@ func (s *PostListService) Create(list models.Post) (int, error) {
 		Title:     list.Title,
 		CreatedAt: list.CreatedAt,
 	})
-	_ = s.publisher.PublishPostCreated(ev)
+	if err := s.publisher.PublishPostCreated(ev); err != nil {
+		return 0, err
+	}
 
 	return id, nil
 }

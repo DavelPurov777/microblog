@@ -9,13 +9,13 @@ import (
 )
 
 type AuthService struct {
-	repo      AuthorizationRepo
-	salt      string
-	publisher events.EventPublisher
+	repo                    AuthorizationRepo
+	salt                    string
+	userRegisteredPublisher events.UserRegisteredPublisher
 }
 
-func NewAuthService(repo AuthorizationRepo, salt string, publisher events.EventPublisher) *AuthService {
-	return &AuthService{repo: repo, salt: salt, publisher: publisher}
+func NewAuthService(repo AuthorizationRepo, salt string, userRegisteredPublisher events.UserRegisteredPublisher) *AuthService {
+	return &AuthService{repo: repo, salt: salt, userRegisteredPublisher: userRegisteredPublisher}
 }
 
 func (s *AuthService) CreateUser(user models.User) (int, error) {
@@ -29,7 +29,9 @@ func (s *AuthService) CreateUser(user models.User) (int, error) {
 		Id:       id,
 		Username: user.Username,
 	})
-	s.publisher.PublishUserRegistered(ev)
+	if err := s.userRegisteredPublisher.PublishUserRegistered(ev); err != nil {
+		return 0, err
+	}
 
 	return id, nil
 }

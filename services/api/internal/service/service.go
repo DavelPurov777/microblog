@@ -44,9 +44,10 @@ func NewService(
 	repos Repositories,
 	salt string,
 	publisher events.EventPublisher,
+	userRegisteredPublisher events.UserRegisteredPublisher,
 ) *Service {
 	return &Service{
-		Authorization: NewAuthService(repos, salt, publisher),
+		Authorization: NewAuthService(repos, salt, userRegisteredPublisher),
 		PostsList:     NewPostListService(repos, publisher),
 	}
 }
