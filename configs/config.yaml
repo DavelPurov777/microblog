@@ -11,6 +11,6 @@ db:
 kafka:
     brokers:
         - "kafka:9092"
-    likes_topic: "likes"
+    posts_topic: "posts"
     user_registered_topic: "user_registered"
     client_id: "microblog-api"

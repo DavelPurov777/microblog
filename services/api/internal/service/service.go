@@ -43,11 +43,11 @@ type Service struct {
 func NewService(
 	repos Repositories,
 	salt string,
-	publisher events.EventPublisher,
-	userRegisteredPublisher events.UserRegisteredPublisher,
+	postsPublisher events.PostsEventPublisher,
+	userPublisher events.UserEventPublisher,
 ) *Service {
 	return &Service{
-		Authorization: NewAuthService(repos, salt, userRegisteredPublisher),
-		PostsList:     NewPostListService(repos, publisher),
+		Authorization: NewAuthService(repos, salt, userPublisher),
+		PostsList:     NewPostListService(repos, postsPublisher),
 	}
 }

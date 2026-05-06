@@ -9,12 +9,12 @@ import (
 
 type PostListService struct {
 	repo      PostsListRepo
-	publisher events.EventPublisher
+	publisher events.PostsEventPublisher
 }
 
 func NewPostListService(
 	repo PostsListRepo,
-	publisher events.EventPublisher,
+	publisher events.PostsEventPublisher,
 ) *PostListService {
 	return &PostListService{repo: repo, publisher: publisher}
 }
@@ -26,10 +26,11 @@ func (s *PostListService) Create(list models.Post) (int, error) {
 	}
 
 	ev := events.PostCreatedEvent(events.PostCreatedEvent{
-		Id:        id,
-		UserId:    list.UserId,
-		Title:     list.Title,
-		CreatedAt: list.CreatedAt,
+		Id:          id,
+		UserId:      list.UserId,
+		Title:       list.Title,
+		Description: list.Description,
+		CreatedAt:   list.CreatedAt,
 	})
 	if err := s.publisher.PublishPostCreated(ev); err != nil {
 		return 0, err

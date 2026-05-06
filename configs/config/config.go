@@ -52,7 +52,7 @@ func Load() (Config, error) {
 	viper.SetDefault("port", "8080")
 	viper.SetDefault("like_queue.buffer", 100)
 
-	viper.SetDefault("kafka.likes_topic", "likes")
+	viper.SetDefault("kafka.posts_topic", "posts")
 	viper.SetDefault("kafka.user_registered_topic", "user_registered")
 	viper.SetDefault("kafka.client_id", "microblog-api")
 	viper.SetDefault("db.sslmode", "disable")
@@ -87,7 +87,7 @@ func Load() (Config, error) {
 
 		Kafka: KafkaConfig{
 			Brokers:             viper.GetStringSlice("kafka.brokers"),
-			LikesTopic:          viper.GetString("kafka.likes_topic"),
+			LikesTopic:          viper.GetString("kafka.posts_topic"),
 			UserRegisteredTopic: viper.GetString("kafka.user_registered_topic"),
 			ClientID:            viper.GetString("kafka.client_id"),
 		},

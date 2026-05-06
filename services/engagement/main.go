@@ -48,7 +48,14 @@ func run() int {
 
 	likeConsumer := consumer.NewLikeConsumer(
 		[]string{"kafka:9092"},
-		"likes",
+		"posts",
+		"engagement-service",
+		repo,
+	)
+
+	userRegisteredConsumer := consumer.NewLikeConsumer(
+		[]string{"kafka:9092"},
+		"user_registered",
 		"engagement-service",
 		repo,
 	)
@@ -56,6 +63,12 @@ func run() int {
 	// запускаем консьюмера
 	go func() {
 		if err := likeConsumer.Run(context.Background()); err != nil {
+			log.Error(fmt.Sprintf("consumer error: %v", err))
+		}
+	}()
+	// запускаем 2-ого консьюмера
+	go func() {
+		if err := userRegisteredConsumer.Run(context.Background()); err != nil {
 			log.Error(fmt.Sprintf("consumer error: %v", err))
 		}
 	}()
